@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecturers</title>
+</head>
+<body>
+    <h1>Lecturers</h1>
+
+      <!-- Link to home page -->
+    <a href="/">Home</a>
+    <br><br>
+
+      <!-- Table for lecturer data -->
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Lecturer ID</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% lecturers.forEach(lecturer => { %>
+                <tr>
+                    <td><%= lecturer.id %></td>
+                    <td><%= lecturer.name %></td>
+                    <td><%= lecturer.did %></td>
+
+                     <!-- Link to delete lecturer data -->
+                    <td>
+                        <a href="/lecturers/delete/<%= lecturer.id %>">Delete</a>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</body>
+</html>

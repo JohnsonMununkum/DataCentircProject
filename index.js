@@ -16,6 +16,28 @@ connection.connect((err) => {
     console.log('Connected to MySQL database!');
 });
 
+//implementing mongoose for the lecturers page
+const mongoose = require('mongoose');
+
+//connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/proj2024MongoDB',  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => {
+    console.log('Connected to MongoDB');
+}).catch(err => {
+    console.error('Error connecting to MongoDB:', err);
+});
+
+//defining schema 
+const lectSchema = new mongoose.Schema({
+    _id: String,          // Lecturer ID
+    name: String,        // Lecturer name
+    did: String   // Lecturer department
+});
+
+const Lecturer = mongoose.model('Lecturer', lectSchema);
+
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 //can fetch data
@@ -61,6 +83,34 @@ app.get('/', (req, res) => {
     { id: "G019", name: "James Joyce", age: 39 },
     { id: "G020", name: "Alice L'Estrange", age: 32 }
 ];
+
+// data for student grades
+const studentGradeData = [
+    [
+        { name: "Albert Newton", mid: "Algebra", grade: 49 },
+        { name: "Albert Newton", mid: "Mechanics of Fluids", grade: 78 },
+        { name: "Alice L'Estrange" },
+        { name: "Alison Conners", mid: "Mechanics of Fluids", grade: 72 },
+        { name: "Alison Conners", mid: "Mechanics of Solids", grade: 79 },
+        { name: "Amanda Knox", mid: "Long Division", grade: 32 },
+        { name: "Amanda Knox", mid: "Times Tables", grade: 65 },
+        { name: "Amanda Knox", mid: "Algebra", grade: 77 },
+        { name: "Anne Greene", mid: "Poetry", grade: 45 },
+        { name: "Anne Greene", mid: "Creative Writing", grade: 56 },
+        { name: "Anne Greene", mid: "Shakespeare", grade: 71 },
+        { name: "Barbara Harris" },
+        { name: "Bill Turpin", mid: "Shakespeare", grade: 68 },
+        { name: "Brian Collins", mid: "Algebra", grade: 28 },
+        { name: "Brian Collins", mid: "Times Tables", grade: 91 },
+        { name: "Brian Collins", mid: "Long Division", grade: 92 },
+        { name: "Fiona O'Hehir", mid: "Creative Writing", grade: 55 },
+        { name: "George Johnson", mid: "Poetry", grade: 82 },
+        { name: "George Johnson", mid: "Creative Writing", grade: 82 },
+        { name: "James Joyce", mid: "Mobile Applications Development", grade: 32 },
+        { name: "Johnny Connors", mid: "Mechanics of Fluids", grade: 35 },
+        { name: "Johnny Connors", mid: "Mechanics of Solids", grade: 52 }
+      ]
+      ];
 
 // Students route to render the students.ejs file
 app.get('/students', (req, res) => {
@@ -165,6 +215,25 @@ app.post('/students/add', (req, res) => {
 
     // Redirect to the students page
     res.redirect('/students');
+});
+
+// grades route to render the grades.ejs file
+app.get('/grades', (req, res) => {
+    console.log("Rendering Grades Page");
+   
+    // Render the EJS template with the grades data
+    res.render('grades', {grades: studentGradeData[0] });
+});
+
+// lecturers route to render the lecturers page
+// .sort sort the lecturers in order by id
+app.get('/lecturers', (req, res) => {
+    Lecturer.find().sort({ _id: 1 })
+        .then(lecturers => res.render('lecturers', { lecturers }))
+        .catch(err => {
+            console.error('Error fetching lecturers:', err);
+            res.status(500).send('Error fetching lecturers');
+        });
 });
 
 //get app to listen on port 3004
