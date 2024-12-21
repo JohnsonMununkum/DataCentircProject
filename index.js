@@ -16,6 +16,10 @@ connection.connect((err) => {
     console.log('Connected to MySQL database!');
 });
 
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+//can fetch data
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.set('view engine', 'ejs');
@@ -66,6 +70,57 @@ app.get('/students', (req, res) => {
      res.render('students', { students });
     });
     
+
+    //updating student info
+app.get('/students/edit/:id', (req, res) => {
+    const studentId = req.params.id;
+
+    const student = students.find(s => s.id === studentId);
+
+   // if student id dosent match any of the id student not found
+   if (!student) {
+     return res.status(404).send("Student not found");
+    }
+
+    // Render the edit form with the student's data
+    res.render('updateStudent', { student });
+});
+
+//post for updating/edit student details
+app.post('/students/edit/:id', (req, res) => {
+    const studentId = req.params.id;
+    const { name, age } = req.body;
+
+    let errors =[];
+  //validation for them to be an error
+    if(name.length < 2)
+    {
+        errors.push("Student Name must be at least 2 characters.");    
+    } 
+     if (age < 18) {
+        errors.push("Student Age must be at least 18.");
+    }
+
+    if (errors.length > 0) {
+        const student = { id: studentId, name, age }; 
+        return res.render('updateStudent', { student, errors });
+    }
+
+    // Find the student by ID
+    const studentIndex = students.findIndex(s => s.id === studentId);
+
+    // If the student is found, update the data
+    if (studentIndex !== -1) {
+        students[studentIndex].name = name;
+        students[studentIndex].age = parseInt(age);
+    } else {
+        return res.status(404).send("Student not found");
+    }
+
+    console.log(`Updated Student: ID=${studentId}, Name=${name}, Age=${age}`);
+    res.redirect('/students');
+});
+
 
 //get app to listen on port 3004
 app.listen(3004, () => {
