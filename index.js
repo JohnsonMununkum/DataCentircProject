@@ -236,6 +236,44 @@ app.get('/lecturers', (req, res) => {
         });
 });
 
+
+// Route to delete a lecturer
+app.get('/lecturers/delete/:id', (req, res) => {
+    const lecturerId = req.params.id;
+
+    // Query to check if lecturer teaches a module
+    const checkModulesQuery = `SELECT COUNT(*) AS count FROM module WHERE lecturer = ?`;
+
+    connection.query(checkModulesQuery, [lecturerId], (err, results) => {
+        if (err) {
+            console.error('Error checking modules:', err);
+            return res.status(500).send('Error checking associated modules.');
+        }
+
+        const isTeaching = results[0].count > 0;
+
+        if (isTeaching) {
+            // error message saying lecturer cannot be deleted
+            //link back to home page
+            res.send(`
+                 <a href="/">Home</a> 
+                <h1>Error Message</h1>
+                <p><b>Cannot delete lecturer ${lecturerId}. He/She has associated modules.</p></b>
+            `);
+        } else {
+            // If lecturer teaches no modules delete the lecturer from Mongo
+            Lecturer.deleteOne({ _id: lecturerId })
+                .then(() => {
+                    console.log(`Deleted lecturer ${lecturerId} from MongoDB.`);
+                })
+                .catch(err => {
+                    console.error('Error deleting lecturer from MongoDB:', err);
+                    res.status(500).send('Error deleting lecturer.');
+                });
+        }
+    });
+});
+
 //get app to listen on port 3004
 app.listen(3004, () => {
     console.log("Application listening on port 3004")
