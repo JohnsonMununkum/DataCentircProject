@@ -121,6 +121,51 @@ app.post('/students/edit/:id', (req, res) => {
     res.redirect('/students');
 });
 
+//adding a new student 
+app.get('/students/add/', (req, res) => {
+
+    res.render('addStudent', { Validation: "" });
+});
+
+
+//post for adding a new student 
+app.post('/students/add', (req, res) => {
+    const { sid, name, age } = req.body;
+
+    let errors =[];
+    //validation for them to be an error
+    if(sid.length < 4)
+    {
+        errors.push("Student ID is 4 characters.");   
+     } 
+     if (name.length < 2) 
+        {
+        errors.push("Name must be at least 2 characters.");
+    }
+    if (age < 18) 
+        {
+        errors.push("Age should be 18 or older.");
+    }
+
+    // Check for duplicate student ID
+    const duplicateStudent = students.find(s => s.id === sid);
+    if (duplicateStudent) {
+        errors.push(`Student ID "${sid}" already exists.`);
+    }
+   
+    //display errors to the addStudent page
+    if (errors.length > 0) {
+        const student = { sid, name, age };
+        return res.render('addStudent', { student, errors });
+    }
+
+    // Add the new student to the list
+    students.push({ id: sid, name, age: parseInt(age) });
+    console.log(`Added Student: ID=${sid}, Name=${name}, Age=${age}`);
+
+    // Redirect to the students page
+    res.redirect('/students');
+});
 
 //get app to listen on port 3004
 app.listen(3004, () => {
