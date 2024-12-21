@@ -17,6 +17,7 @@
   "homepage": "https://github.com/JohnsonMununkum/DataCentircProject#readme",
   "description": "",
   "dependencies": {
+    "ejs": "^3.1.10",
     "express": "^4.21.2",
     "mysql": "^2.18.1"
   }
